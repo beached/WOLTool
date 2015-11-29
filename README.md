@@ -1,2 +1,2 @@
 # WOLTool
-Simple tool to wake machines and remember previous ones
+Simple tool to wake machines on local lan
