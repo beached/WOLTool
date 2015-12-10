@@ -11,9 +11,15 @@ using System.Windows.Forms;
 namespace WOLTool {
 
 	public partial class frmMain: Form {
+		StoredComputers m_stored_computers;
 
 		public frmMain( ) {
+			m_stored_computers = new StoredComputers( );
 			InitializeComponent( );
+			
+			foreach( var comp in m_stored_computers.GetStoredItems( ) ) {
+				dataGridView1.Rows.Add( comp.mac_address, comp.computer_name, comp.last_used );
+			}
 		}
 
 		private static string cleanup_mac_string( string orig_mac_string ) {
@@ -74,8 +80,17 @@ namespace WOLTool {
 
 		private void btnWakeUp_Click( object sender, EventArgs e ) {
 			var dgram = repeat_string( @"FF", 6 );
-			dgram += repeat_string( cleanup_mac_string( txtMACAddress.Text ), 16 );
+			var mac_address = cleanup_mac_string( txtMACAddress.Text );
+			var computer_name = txtComputerName.Text.Trim( ).ToLowerInvariant( );
+			dgram += repeat_string( mac_address, 16 );
 			send_packet( dgram );
+			m_stored_computers.AddNewOrUpdate( mac_address, computer_name );
+		}
+
+		private void dataGridView1_CellContentClick( object sender, DataGridViewCellEventArgs e ) {
+			var row = dataGridView1.Rows[e.RowIndex];
+			txtMACAddress.Text = row.Cells[0].Value as string;
+			txtComputerName.Text = row.Cells[1].Value as string;
 		}
 	}
 }
